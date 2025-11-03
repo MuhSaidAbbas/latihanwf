@@ -17,15 +17,20 @@ Route::post('/admin/products', function (Request $request) {
     ]);
 
     // Simpan file gambar
-    $imagePath = $request->file('image')->store('products', 'public');
+   $imagePath = $request->file('image')->store('products', 'public');
 
-    // Simpan data ke database
+    // copy file ke public/storage agar bisa diakses langsung
+    $publicPath = public_path('storage/' . $imagePath);
+    @mkdir(dirname($publicPath), 0777, true);
+    copy(storage_path('app/public/' . $imagePath), $publicPath);
+
     Product::create([
         'name' => $validated['name'],
         'category' => $validated['category'],
         'price' => $validated['price'],
         'image' => '/storage/' . $imagePath,
     ]);
+
 
     return redirect('/admin/products/create')->with('success', 'Produk berhasil ditambahkan!');
 });
