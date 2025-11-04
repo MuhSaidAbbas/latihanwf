@@ -1,46 +1,158 @@
 <?php
 
+use Illuminate\Http\Request; 
 use Illuminate\Support\Facades\Route;
 use App\Models\Product;
-# Halaman form tambah produk
+use App\Models\Category;
+
+// HALAMAN ADMIN FORM TAMBAH PRODUK
 Route::get('/admin/products/create', function () {
-    return view('admin.create-product');
+    $categories = Category::all(); 
+    return view('admin.create-product', ['categories' => $categories]); 
 });
 
-Route::get('/', fn() => view('home', ['products' => Product::all()]));
-Route::get('/sneakers', fn() => view('sneakers', ['products' => Product::where('category', 'sneakers')->get()]));
-Route::get('/basket', fn() => view('basket', ['products' => Product::where('category', 'basket')->get()]));
-Route::get('/running', fn() => view('running', ['products' => Product::where('category', 'running')->get()]));
-
-
-Route::fallback(function () {
-    return response()->view('errors.404', [], 404);
+// DASHBOARD ADMIN - DAFTAR PRODUK
+Route::get('/admin/products', function () {
+    $products = \App\Models\Product::latest()->get();
+    return view('admin.dashboard', compact('products'));
 });
 
-# Proses form tambah produk
-Route::post('/admin/products', function (Request $request) {
+// HAPUS PRODUK
+Route::delete('/admin/products/{id}', function ($id) {
+    $product = \App\Models\Product::findOrFail($id);
+
+    // Hapus file gambar dari storage
+    $filePath = public_path($product->image);
+    if (file_exists($filePath)) {
+        unlink($filePath);
+    }
+
+    $product->delete();
+    return redirect('/admin/products')->with('success', 'Produk berhasil dihapus!');
+});
+
+// HALAMAN EDIT PRODUK
+Route::get('/admin/products/{id}/edit', function ($id) {
+    $product = \App\Models\Product::findOrFail($id);
+    return view('admin.edit-product', compact('product'));
+});
+
+// PROSES UPDATE PRODUK
+Route::put('/admin/products/{id}', function (Illuminate\Http\Request $request, $id) {
     $validated = $request->validate([
         'name' => 'required',
         'category' => 'required',
         'price' => 'required',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
+
+    $product = \App\Models\Product::findOrFail($id);
+
+    // Jika ada gambar baru diupload
+    if ($request->hasFile('image')) {
+        // Hapus gambar lama
+        $oldPath = public_path($product->image);
+        if (file_exists($oldPath)) {
+            unlink($oldPath);
+        }
+
+        // Simpan gambar baru
+        $imagePath = $request->file('image')->store('products', 'public');
+
+        // Copy ke public agar bisa diakses browser
+        $publicPath = public_path('storage/' . $imagePath);
+        @mkdir(dirname($publicPath), 0777, true);
+        copy(storage_path('app/public/' . $imagePath), $publicPath);
+
+        $product->image = '/storage/' . $imagePath;
+    }
+
+    // Update field lainnya
+    $product->update([
+        'name' => $validated['name'],
+        'category' => $validated['category'],
+        'price' => $validated['price'],
+        'image' => $product->image,
+    ]);
+
+    return redirect('/admin/products')->with('success', 'Produk berhasil diperbarui!');
+});
+
+// HALAMAN UTAMA & KATEGORI PRODUK
+Route::get('/home', fn() => view('home', [
+    'products' => Product::all()
+]));
+
+Route::get('/sneakers', function () {
+    $category = Category::where('name', 'sneakers')->first();
+    $products = $category ? $category->products : collect(); // kalau tidak ada, kirim koleksi kosong
+    return view('sneakers', compact('products'));
+});
+
+Route::get('/basket', function () {
+    $category = Category::where('name', 'basket')->first();
+    $products = $category ? $category->products : collect();
+    return view('basket', compact('products'));
+});
+
+Route::get('/running', function () {
+    $category = Category::where('name', 'running')->first();
+    $products = $category ? $category->products : collect();
+    return view('running', compact('products'));
+});
+
+// FALLBACK UNTUK HALAMAN YANG TIDAK DITEMUKAN
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});
+
+// PROSES TAMBAH PRODUK (POST)
+Route::post('/admin/products', function (Request $request) {
+    // Validasi input form
+    $validated = $request->validate([
+        'name' => 'required',
+        'category_id' => 'required|exists:categories,id',
+        'price' => 'required',
         'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
     ]);
 
-    // Simpan file gambar
-   $imagePath = $request->file('image')->store('products', 'public');
+    // Simpan file gambar ke storage/app/public/products
+    $imagePath = $request->file('image')->store('products', 'public');
 
-    // copy file ke public/storage agar bisa diakses langsung
+    // Salin juga ke public/storage biar bisa diakses langsung di browser
     $publicPath = public_path('storage/' . $imagePath);
     @mkdir(dirname($publicPath), 0777, true);
     copy(storage_path('app/public/' . $imagePath), $publicPath);
 
+    // Simpan data ke tabel products
     Product::create([
         'name' => $validated['name'],
-        'category' => $validated['category'],
+        'category_id' => $validated['category_id'],
         'price' => $validated['price'],
         'image' => '/storage/' . $imagePath,
     ]);
 
+    // Redirect kembali ke form dengan pesan sukses
+    return redirect('/admin/products/create')
+        ->with('success', 'Produk berhasil ditambahkan!');
+});
 
-    return redirect('/admin/products/create')->with('success', 'Produk berhasil ditambahkan!');
+
+// --- DAFTAR KATEGORI
+Route::get('/admin/categories', function () {
+    $categories = Category::latest()->get();
+    return view('admin.categories.index', compact('categories'));
+});
+
+// --- TAMBAH KATEGORI
+Route::post('/admin/categories', function (Illuminate\Http\Request $request) {
+    $request->validate(['name' => 'required']);
+    Category::create(['name' => $request->name]);
+    return back()->with('success', 'Kategori berhasil ditambahkan!');
+});
+
+// --- HAPUS KATEGORI
+Route::delete('/admin/categories/{id}', function ($id) {
+    Category::findOrFail($id)->delete();
+    return back()->with('success', 'Kategori berhasil dihapus!');
 });

@@ -27,15 +27,13 @@
             <input type="text" name="name" class="w-full p-2 rounded bg-gray-800 text-white focus:outline-none" required>
         </div>
 
-        <div>
-            <label class="block font-semibold mb-2">Kategori</label>
-            <select name="category" class="w-full p-2 rounded bg-gray-800 text-white focus:outline-none" required>
-                <option value="">-- Pilih Kategori --</option>
-                <option value="sneakers">Sneakers</option>
-                <option value="basket">Basket</option>
-                <option value="running">Running</option>
-            </select>
-        </div>
+    <select name="category_id" class="w-full p-2 rounded bg-gray-800 text-white" required>
+        <option value="">-- Pilih Kategori --</option>
+        @foreach($categories as $category)
+            <option value="{{ $category->id }}">{{ $category->name }}</option>
+        @endforeach
+    </select>
+
 
         <div>
             <label class="block font-semibold mb-2">Harga</label>

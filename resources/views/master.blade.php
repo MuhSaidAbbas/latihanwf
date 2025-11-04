@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="dark"> {{-- #GPT5: tambahkan class="dark" agar Tailwind tahu default dark mode --}}
 <head>
+    <link rel="icon" type="image/png" href="{{ asset('Wallpaper Desktop KAI.png') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toko Sepatu Basket</title>
@@ -65,7 +66,7 @@
     <footer class="mt-16 bg-gray-900 text-gray-400">
         <div class="max-w-6xl mx-auto px-6 py-8 grid md:grid-cols-3 gap-6">
             <div>
-                <h2 class="text-white font-semibold mb-3">Tentang BALLSTEP</h2>
+                <h2 class="text-white font-semibold mb-3">Tentang BASENESS HOOPS</h2>
                 <p class="text-sm">Toko sepatu yang berfokus pada performa dan gaya. Dari lapangan basket hingga jalanan kota.</p>
             </div>
             <div>
@@ -78,12 +79,12 @@
             </div>
             <div id="contact">
                 <h2 class="text-white font-semibold mb-3">Hubungi Kami</h2>
-                <p class="text-sm">📞 WhatsApp: <a href="#" class="hover:text-white">+62 812 3456 7890</a></p>
-                <p class="text-sm">📸 Instagram: <a href="#" class="hover:text-white">@ballstep.store</a></p>
+                <p class="text-sm">📞 WhatsApp: <a href="#" class="hover:text-white">+62 822 9694 8315</a></p>
+                <p class="text-sm">📸 Instagram: <a href="#" class="hover:text-white">@baseness_hoops.store</a></p>
             </div>
         </div>
         <div class="border-t border-gray-700 text-center py-4 text-xs text-gray-500">
-            © 2025 BALLSTEP. All rights reserved.
+            © 2025 BASENESS HOOPS. All rights reserved.
         </div>
     </footer>
 
