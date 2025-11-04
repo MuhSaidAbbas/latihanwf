@@ -1,17 +1,18 @@
 <IfModule mod_rewrite.c>
     Options +FollowSymLinks
     RewriteEngine On
+    RewriteBase /
 
-    # biarkan Apache akses folder storage langsung
+    # Akses langsung untuk folder storage
     RewriteCond %{REQUEST_URI} ^/storage/
     RewriteRule ^ - [L]
 
-    # izinkan file & folder asli
-    RewriteCond %{REQUEST_FILENAME} -d [OR]
-    RewriteCond %{REQUEST_FILENAME} -f
+    # Jika file atau folder asli ada, jangan rewrite
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # arahkan semua request lainnya ke index.php Laravel
+    # Arahkan semua request ke index.php Laravel
     RewriteRule ^ index.php [L]
 </IfModule>
 

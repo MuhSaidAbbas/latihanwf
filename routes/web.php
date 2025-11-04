@@ -7,6 +7,16 @@ Route::get('/admin/products/create', function () {
     return view('admin.create-product');
 });
 
+Route::get('/', fn() => view('home', ['products' => Product::all()]));
+Route::get('/sneakers', fn() => view('sneakers', ['products' => Product::where('category', 'sneakers')->get()]));
+Route::get('/basket', fn() => view('basket', ['products' => Product::where('category', 'basket')->get()]));
+Route::get('/running', fn() => view('running', ['products' => Product::where('category', 'running')->get()]));
+
+
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});
+
 # Proses form tambah produk
 Route::post('/admin/products', function (Request $request) {
     $validated = $request->validate([
