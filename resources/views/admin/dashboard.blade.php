@@ -32,7 +32,7 @@
                 <tr class="border-b border-gray-700 hover:bg-gray-800 transition">
                     <td class="py-3 px-4">{{ $index + 1 }}</td>
                     <td class="py-3 px-4">{{ $product->name }}</td>
-                    <td class="py-3 px-4 capitalize">{{ $product->category }}</td>
+                    <td class="py-3 px-4 capitalize">{{ $product->category->name ?? '-' }}</td>
                     <td class="py-3 px-4">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                     <td class="py-3 px-4">
                         <img src="{{ $product->image }}" alt="Gambar {{ $product->name }}" class="w-20 h-20 object-cover rounded-lg">

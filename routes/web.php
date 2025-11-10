@@ -4,6 +4,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Product;
 use App\Models\Category;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
+
+Route::get('/admin/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
+Route::post('/admin/products', [ProductController::class, 'store'])->name('products.store');
+Route::delete('/admin/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+Route::get('/admin/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
+Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+Route::post('/admin/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
 
 // HALAMAN ADMIN FORM TAMBAH PRODUK
 Route::get('/admin/products/create', function () {
@@ -11,11 +24,6 @@ Route::get('/admin/products/create', function () {
     return view('admin.create-product', ['categories' => $categories]); 
 });
 
-// DASHBOARD ADMIN - DAFTAR PRODUK
-Route::get('/admin/products', function () {
-    $products = \App\Models\Product::latest()->get();
-    return view('admin.dashboard', compact('products'));
-});
 
 // HAPUS PRODUK
 Route::delete('/admin/products/{id}', function ($id) {
